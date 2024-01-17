@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  express-server:
+    environment:
+        - NODE_ENV=development
+        - PORT=3000
+        - APP_NAME=express-graphql
+        - DB_URI=mongodb://mongo_db:27017/express-graphql
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/usr/src/app
+    container_name: express-server
+    expose:
+      - '3000'
+    ports:
+      - '3000:3000'
+    command: npm run start:dev
+    external_links:
+      - mongo_db
+
+  mongo_db:
+    image: mongo:latest
+    container_name: mongo_db
+    volumes:
+      - mongo_db:/data/db
+    ports:
+      - '27012:27017'
+    restart: always
+
+volumes:
+    mongo_db: {}

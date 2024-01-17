@@ -1,0 +1,5 @@
+{
+  "env" : {
+    "DB_URI": "mongodb://mongo_db:27017/express-graphql"
+  }
+}

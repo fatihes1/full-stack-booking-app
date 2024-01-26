@@ -14,9 +14,9 @@ services:
       - ./:/usr/src/app
     container_name: express-server
     expose:
-      - '3000'
+      - '3003'
     ports:
-      - '3000:3000'
+      - '3003:3003'
     command: npm run start:dev
     external_links:
       - mongo_db

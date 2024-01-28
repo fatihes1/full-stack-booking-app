@@ -32,12 +32,6 @@ function App() {
         <main className={'main-content'}>
             <Routes>
                 {
-                    !token && <Route
-                        path="/"
-                        element={<Navigate to="/auth" />}
-                    />
-                }
-                {
                     token && <Route
                         path="/auth"
                         element={<Navigate to="/events" />}
@@ -49,6 +43,12 @@ function App() {
                 <Route path="/events" element={<Event />} />
                 {
                     token && <Route path="/bookings" element={<Booking />} />
+                }
+                {
+                    !token && <Route
+                        path="*"
+                        element={<Navigate to="/auth" />}
+                    />
                 }
             </Routes>
         </main>

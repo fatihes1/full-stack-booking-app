@@ -1,11 +1,12 @@
 import './Event.css'
 import { Modal } from "../../components/modal/Modal";
 import { Backdrop } from "../../components/backdrop/Backdrop.jsx";
-import {useContext, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import AuthContext from "../../context/auth-context.jsx";
 
 export const Event = () => {
     const [isShowCreateModal, setIsShowCreateModal] = useState(false)
+    const [events, setEvents] = useState([])
     const titleRef = useRef()
     const priceRef = useRef()
     const dateRef = useRef()
@@ -70,6 +71,7 @@ export const Event = () => {
             })
             .then(resData => {
                 console.log(resData)
+                fetchEvents();
             })
             .catch(err => {
                 console.log(err);
@@ -77,6 +79,61 @@ export const Event = () => {
 
         setIsShowCreateModal(false)
     }
+
+    const fetchEvents = () => {
+        const requestBody = {
+            query: `
+          query {
+            events {
+              _id
+              title
+              description
+              date
+              price
+              creator {
+                _id
+                email
+              }
+            }
+          }
+        `
+        };
+
+        fetch('http://localhost:3003/graphql', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (res.status !== 200 && res.status !== 201) {
+                    throw new Error('Failed!');
+                }
+                return res.json();
+            })
+            .then(resData => {
+                const events = resData.data.events;
+                console.log(events)
+                setEvents(events);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
+
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    const eventList = events.map(event => {
+        return (
+            <li key={event._id} className={'events__list-item'}>
+                {event.title}
+            </li>
+        )
+    });
+
 
     return (
         <>
@@ -118,7 +175,7 @@ export const Event = () => {
                 )
             }
             <ul className={'events__list'}>
-                <li className={'events__list-item'}></li>
+                {eventList}
             </ul>
         </>
     )

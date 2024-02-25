@@ -6,7 +6,7 @@ const { user } = require("./common");
 const transformEvent = (event) => {
     return {
         ...event._doc,
-        _id: event._doc._id.toString(), // or event.id
+        _id: event._doc._id.toString(), // or events.id
         date: dateToString(event._doc.date),
         creator: user.bind(this, event.creator)
     };
@@ -22,7 +22,7 @@ module.exports = {
                     // Because of the mongoose version
                     // Anyway, I will leave it here for reference
                     return transformEvent(event);
-                    // We made a function to transform the event
+                    // We made a function to transform the events
                 })
             }).catch((err) => {
                 throw err;

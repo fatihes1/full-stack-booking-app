@@ -5,14 +5,14 @@ const {dateToString} = require("../../helpers/date");
 const transformEvent = (event) => {
     return {
         ...event._doc,
-        _id: event._doc._id.toString(), // or event.id
+        _id: event._doc._id.toString(), // or events.id
         date: dateToString(event._doc.date),
         creator: user.bind(this, event.creator)
     };
 }
 
 
-// This user function is used to populate the creator property of the event
+// This user function is used to populate the creator property of the events
 // The mongoose populate make an infinite loop, so we need to create this function to avoid it
 // We can use then/catch or async/await
 // I will use async/await for user function

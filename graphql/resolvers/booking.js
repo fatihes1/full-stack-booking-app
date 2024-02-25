@@ -7,7 +7,7 @@ const { singleEvent, user } = require("./common");
 const transformEvent = (event) => {
     return {
         ...event._doc,
-        _id: event._doc._id.toString(), // or event.id
+        _id: event._doc._id.toString(), // or events.id
         date: dateToString(event._doc.date),
         creator: user.bind(this, event.creator)
     };
@@ -25,24 +25,28 @@ const transformBooking = (booking) => {
 }
 
 module.exports = {
-    bookings: async () => {
+    bookings: async (args, req) => {
+        if (!req.isAuth) {
+            throw new Error('Unauthenticated!');
+        }
         try {
-            const bookings = await Booking.find();
+            const bookings = await Booking.find({
+                user: req.userId
+            });
             return bookings.map(booking => {
                 return transformBooking(booking);
             });
-        } catch (e) {
-            throw e;
+        } catch (err) {
+            throw err;
         }
     },
     bookEvent: async (args, req) => {
         if (!req.isAuth) {
-            throw new Error('Unauthenticated');
+            throw new Error('Unauthenticated!');
         }
-        const { eventId } = args;
-        const fetchedEvent = await Event.findOne({_id: eventId});
+        const fetchedEvent = await Event.findOne({ _id: args.eventId });
         const booking = new Booking({
-            user: '65a80ea2a2716f2bf7e402f6',
+            user: req.userId,
             event: fetchedEvent
         });
         const result = await booking.save();

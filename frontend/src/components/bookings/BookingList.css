@@ -1,0 +1,22 @@
+.bookings__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    width: 40rem;
+    max-width: 90%;
+}
+
+.bookings__item {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid #5101d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bookings__item-actions {
+    display: flex;
+    align-items: center;
+}

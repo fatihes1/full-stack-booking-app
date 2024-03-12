@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from 'react'
+import {useContext, useEffect, useState} from 'react'
 import AuthContext from '../../context/auth-context.jsx'
 import {Spinner} from "../../components/spinner/Spinner.jsx";
+import {BookingList} from "../../components/bookings/BookingList.jsx";
 
 export const Booking = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -55,6 +56,47 @@ export const Booking = () => {
       })
   }
 
+  const deleteBookingHandler = (bookingId) => {
+    setIsLoading(true)
+    const requestBody = {
+      query: `
+          mutation {
+            cancelBooking(bookingId: "${bookingId}") {
+              _id
+              title
+            }
+          }
+        `,
+    }
+
+    fetch('http://localhost:3003/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+    })
+        .then((res) => {
+          if (res.status !== 200 && res.status !== 201) {
+            throw new Error('Failed!')
+          }
+          return res.json()
+        })
+        .then((resData) => {
+          setBookings((prevBookings) => {
+            return prevBookings.filter((booking) => {
+              return booking._id !== bookingId
+            })
+          });
+          setIsLoading(false)
+        })
+        .catch((err) => {
+          console.log(err)
+          setIsLoading(false)
+        })
+  }
+
   return (
     <>
         {
@@ -64,12 +106,7 @@ export const Booking = () => {
                 <p>There is no booking here!</p>
             ) : (
                 <ul>
-                    {bookings.map((booking) => (
-                        <li key={booking._id}>
-                            {booking.event.title} -{' '}
-                            {new Date(booking.createdAt).toLocaleDateString()}
-                        </li>
-                    ))}
+                    <BookingList bookings={bookings} onDelete={deleteBookingHandler} />
                 </ul>
             )
         }

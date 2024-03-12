@@ -1,6 +1,15 @@
 const User = require("../../models/user");
 const Event = require("../../models/event");
 const {dateToString} = require("../../helpers/date");
+const DataLoader = require('dataloader');
+
+const eventLoader = new DataLoader((eventIds) => {
+    return events(eventIds);
+})
+
+const userLoader = new DataLoader((userIds) => {
+    return User.find({_id: {$in: userIds}});
+});
 
 const transformEvent = (event) => {
     return {
@@ -16,13 +25,26 @@ const transformEvent = (event) => {
 // The mongoose populate make an infinite loop, so we need to create this function to avoid it
 // We can use then/catch or async/await
 // I will use async/await for user function
-const user = (userId) => {
+const userOld = (userId) => {
     return User.findById(userId).then((user) => {
-        return {...user._doc, _id: user.id, createdEvents: events.bind(this, user._doc.createdEvents)};
+        return {...user._doc, _id: user.id, createdEvents: () => eventLoader.loadMany(user._doc.createdEvents)};
     }).catch((err) => {
         throw err;
     })
 }
+
+const user = async userId => {
+    try {
+        const user = await userLoader.load(userId.toString())
+        return {
+            ...user._doc,
+            _id: user.id,
+            createdEvents: events.bind(this, user._doc.createdEvents)
+        };
+    } catch (err) {
+        throw err;
+    }
+};
 
 // We keep both of them for reference
 
@@ -41,8 +63,7 @@ const events = async (eventIds) => {
 
 const singleEvent = async (eventId) => {
     try {
-        const event = await Event.findById(eventId);
-        return transformEvent(event);
+        return await eventLoader.load(eventId.toString());
     } catch (e) {
         throw e;
     }
@@ -51,3 +72,4 @@ const singleEvent = async (eventId) => {
 exports.user = user;
 exports.events = events;
 exports.singleEvent = singleEvent;
+exports.eventLoader = eventLoader;

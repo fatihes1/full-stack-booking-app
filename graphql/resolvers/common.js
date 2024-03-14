@@ -53,6 +53,9 @@ const user = async userId => {
 const events = async (eventIds) => {
     try {
         const events = await Event.find({_id: {$in: eventIds}})
+        events.sort((a, b) => {
+            return eventIds.indexOf(a._id.toString()) - eventIds.indexOf(b._id.toString())
+        }); // This is to keep the order of the events
         return events.map(event => {
             return transformEvent(event);
         });

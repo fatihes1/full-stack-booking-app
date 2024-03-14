@@ -2,10 +2,13 @@ import {useContext, useEffect, useState} from 'react'
 import AuthContext from '../../context/auth-context.jsx'
 import {Spinner} from "../../components/spinner/Spinner.jsx";
 import {BookingList} from "../../components/bookings/BookingList.jsx";
+import {BookingChart} from "../../components/bookings/BookingChart.jsx";
+import {BookingsControl} from "../../components/bookings/BookingsControl.jsx";
 
 export const Booking = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [bookings, setBookings] = useState([])
+  const [outputType, setOutputType] = useState('list')
   const { token, userId } = useContext(AuthContext)
 
   useEffect(() => {
@@ -100,6 +103,14 @@ export const Booking = () => {
         })
   }
 
+  const changeOutputTypeHandler = (outputType) => {
+    if (outputType === 'list') {
+      setOutputType('list')
+    } else {
+      setOutputType('chart')
+    }
+  }
+
   return (
     <>
         {
@@ -108,9 +119,18 @@ export const Booking = () => {
             ) : bookings.length === 0 ? (
                 <p>There is no booking here!</p>
             ) : (
-                <ul>
-                    <BookingList bookings={bookings} onDelete={deleteBookingHandler} />
-                </ul>
+                <>
+                  <BookingsControl activeOutputType={outputType} onChange={changeOutputTypeHandler} />
+                  <div>
+                    {
+                        outputType === 'list' ? (
+                            <BookingList bookings={bookings} onDelete={deleteBookingHandler} />
+                        ) : (
+                            <BookingChart bookings={bookings} />
+                        )
+                    }
+                  </div>
+                </>
             )
         }
     </>
